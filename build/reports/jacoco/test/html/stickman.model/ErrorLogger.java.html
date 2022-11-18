@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorLogger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">ErrorLogger.java</span></div><h1>ErrorLogger.java</h1><pre class="source lang-java linenums">package stickman.model;
+
+/** prints out an error and exits the program if an error is raised in any parts of the program */
+<span class="fc" id="L4">public class ErrorLogger {</span>
+  private String message;
+
+  /**
+   * Called by different parts of the program whenever an error is raised Prints out the relevant
+   * error message and quits the program.
+   */
+  protected void log() {
+<span class="fc" id="L12">    System.err.println(this.getMessage());</span>
+<span class="nc" id="L13">    System.exit(-1);</span>
+<span class="nc" id="L14">  }</span>
+
+  /**
+   * Updates the message that is printed by the error logger to System.err. Updates error logger's
+   * message every time it is called.
+   *
+   * @param message The new message to replace the old one
+   */
+  public void setMessage(String message) {
+<span class="fc" id="L23">    this.message = message;</span>
+<span class="fc" id="L24">  }</span>
+
+  /**
+   * Returns the message that is used by the object to print errors on the console. Used when in the
+   * log error when writing the error to console
+   *
+   * @return The message the object must printed out ot the console.
+   */
+  public String getMessage() {
+<span class="fc" id="L33">    return this.message;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

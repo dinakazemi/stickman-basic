@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CharacterImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">CharacterImpl.java</span></div><h1>CharacterImpl.java</h1><pre class="source lang-java linenums">package stickman.model;
+/** Represents a character in the game. A game can only have one character */
+import java.util.ArrayList;
+
+public class CharacterImpl extends Character {
+  private Layer characterLayer;
+  private double height;
+  private double width;
+  private double xPos;
+  private double yPos;
+  private String imagePath;
+  private ArrayList&lt;Life&gt; life;
+  private String type;
+  private boolean mustDisappear;
+  private double initialX;
+  public boolean isJumping;
+  public boolean isMovingLeft;
+  public boolean isMovingRight;
+  public boolean isMovingDown;
+  public boolean hasStopped;
+  private CharacterState state;
+  private Subject subject;
+  private boolean lostALife;
+  private boolean hitAnEnemy;
+  private Entity isOnPlatform;
+
+<span class="nc" id="L27">  CharacterImpl(String size, double xPos, double levelHeight, int characterLifeCount, Level level) {</span>
+<span class="nc" id="L28">    isJumping = false;</span>
+<span class="nc" id="L29">    isMovingRight = false;</span>
+<span class="nc" id="L30">    isMovingLeft = false;</span>
+<span class="nc" id="L31">    isMovingDown = false;</span>
+<span class="nc" id="L32">    hasStopped = true;</span>
+<span class="nc" id="L33">    this.state = new CharacterContinue();</span>
+<span class="nc" id="L34">    this.lostALife = false;</span>
+<span class="nc" id="L35">    this.initialX = xPos;</span>
+<span class="nc" id="L36">    this.subject = level;</span>
+<span class="nc" id="L37">    life = new ArrayList&lt;Life&gt;(characterLifeCount);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    for (int i = 0; i &lt; characterLifeCount; i++) {</span>
+<span class="nc" id="L39">      life.add(new Life(this.getInitialX() * (i + 1)));</span>
+    }
+<span class="nc" id="L41">    type = &quot;Dynamic&quot;;</span>
+<span class="nc" id="L42">    this.isOnPlatform = null;</span>
+<span class="nc" id="L43">    this.height = CharacterFactory.make(size).getHeight();</span>
+<span class="nc" id="L44">    this.width = CharacterFactory.make(size).getWidth();</span>
+<span class="nc" id="L45">    this.xPos = xPos;</span>
+<span class="nc" id="L46">    this.yPos = levelHeight - this.height;</span>
+<span class="nc" id="L47">    this.characterLayer = Layer.FOREGROUND;</span>
+<span class="nc" id="L48">    this.imagePath = &quot;ch_stand1.png&quot;;</span>
+<span class="nc" id="L49">    this.mustDisappear = false;</span>
+<span class="nc" id="L50">    this.hitAnEnemy = false;</span>
+<span class="nc" id="L51">  }</span>
+
+  /**
+   * Tells the view the image path for the character at the current moment in time (this means the
+   * image can change, enabling simple gif-like animation)
+   *
+   * @return The path of the image where resources/ is the relative root (e.g. &quot;example.png&quot; will
+   *     look for resources/example.png)
+   */
+  @Override
+  public String getImagePath() {
+<span class="nc" id="L62">    return this.imagePath;</span>
+  }
+
+  /**
+   * Tells the view the horizontal position of the hero so the camera can follow.
+   *
+   * @return The current x position of the hero in the same format as everything else (number of
+   *     pixels).
+   */
+  @Override
+  public double getXPos() {
+<span class="nc" id="L73">    return this.xPos;</span>
+  }
+
+  /**
+   * Updates the character's current x position with the given parameter
+   *
+   * @param newX character's new x position Should be a non-negative double using the top left hand
+   *     corner as 0,0 and increasing as the position moves right
+   */
+  @Override
+  public void setXPos(double newX) {
+<span class="nc" id="L84">    this.xPos = newX;</span>
+<span class="nc" id="L85">  }</span>
+
+  /**
+   * Tells the view the vertical position of the hero
+   *
+   * @return The current y position of the hero in the same format as everything else (number of
+   *     pixels).
+   */
+  @Override
+  public double getYPos() {
+<span class="nc" id="L95">    return this.yPos;</span>
+  }
+
+  /**
+   * Updates the character's current y position with the given parameter
+   *
+   * @param newY character's new y position Should be a non-negative double using the top left hand
+   *     corner as 0,0 and increasing as the position moves down
+   */
+  @Override
+  public void setYPos(double newY) {
+<span class="nc" id="L106">    this.yPos = newY;</span>
+<span class="nc" id="L107">  }</span>
+
+  /**
+   * Gives the initial x position of the character (at the time of creation)
+   *
+   * @return character's initial x position a non-negative double using the top left hand corner as
+   *     0,0 and increasing as the position moves right
+   */
+  @Override
+  public double getInitialX() {
+<span class="nc" id="L117">    return this.initialX;</span>
+  }
+
+  /**
+   * Tells the view how tall to draw the given character (can change over time)
+   *
+   * @return The height in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getHeight() {
+<span class="nc" id="L127">    return this.height;</span>
+  }
+
+  /**
+   * Tells the view how wide to draw the given entity (can change over time)
+   *
+   * @return The width in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getWidth() {
+<span class="nc" id="L137">    return this.width;</span>
+  }
+
+  /**
+   * Tells the view what Z-order to draw the character on - to the back, or to the front. The order
+   * within each layer is undefined.
+   *
+   * @return The layer to draw the entity on.
+   */
+  @Override
+  public Layer getLayer() {
+<span class="nc" id="L148">    return characterLayer;</span>
+  }
+
+  /**
+   * Returns true if the character must disappear and false otherwise
+   *
+   * @return The boolean indicating whether the character must disappear or not
+   */
+  @Override
+  public boolean mustDisappear() {
+<span class="nc" id="L158">    return this.mustDisappear;</span>
+  }
+
+  /**
+   * Updates whether the character should go hidden using the given parameter
+   *
+   * @param mustDisappear character's new mustDisappear value Should be true if it should go hidden
+   *     and false otherwise
+   */
+  @Override
+  public void setMustDisappear(boolean mustDisappear) {
+<span class="nc" id="L169">    this.mustDisappear = mustDisappear;</span>
+<span class="nc" id="L170">  }</span>
+
+  /**
+   * Called to indicate that the character is standing on a platform or not. Returns true if he is
+   * standing on a platform and false otherwise. Used to adjust character's y position by moving the
+   * character down from a platform when needed
+   *
+   * @return Whether the character is standing on the platform or not
+   */
+  @Override
+  public Entity getIsOnPlatform() {
+<span class="nc" id="L181">    return this.isOnPlatform;</span>
+  }
+
+  /**
+   * Called from LevelImpl to mark the character as being on the platform or not.
+   *
+   * @param isOnPlatform The boolean used to determine character's state. True if the character is
+   *     on the platform and false otherwise
+   */
+  @Override
+  public void setIsOnPlatform(Entity isOnPlatform) {
+<span class="nc" id="L192">    this.isOnPlatform = isOnPlatform;</span>
+<span class="nc" id="L193">  }</span>
+  /**
+   * Handles all entity's collisions with the characterImpl. Since the characterImpl cannot collide
+   * with itself, this method does nothing
+   *
+   * @param character The characterImpl itself
+   */
+  @Override
+<span class="nc" id="L201">  public void handleCollision(Character character) {}</span>
+
+  /**
+   * Sets the subject (LevelImpl class) for the character to observe and update its state
+   * accordingly (observer design pattern)
+   *
+   * @param subject The subject to be observed by the character and notify it if it is modified
+   */
+  @Override
+  public void setSubject(Subject subject) {
+<span class="nc" id="L211">    this.subject = subject;</span>
+<span class="nc" id="L212">  }</span>
+
+  /**
+   * Updates the state of the character based on changes in the subject (which is the LevelImpl) Can
+   * have one of the following states: CharacterContinue, CharacterWon, CharacterLost,
+   * CharacterReconfigure
+   */
+  @Override
+  public void update() {
+<span class="nc" id="L221">    String message = this.subject.getUpdate(this);</span>
+<span class="nc" id="L222">    state.change(this, message);</span>
+<span class="nc" id="L223">  }</span>
+
+  /**
+   * Chanages the state of the character to the given parameter
+   *
+   * @param state The state to which the character should change to Must be one of the followings:
+   *     CharacterContinue, CharacterReconfigure, CharacterWon, CharacterLost
+   */
+  @Override
+  public void setState(CharacterState state) {
+<span class="nc" id="L233">    this.state = state;</span>
+<span class="nc" id="L234">  }</span>
+
+  /**
+   * Returns true if the character has hit an enemy from above Otherwise, returns false
+   *
+   * @return The boolean indicating whether the character has hit an enemy from above or not
+   */
+  @Override
+  public boolean getHitAnEnemy() {
+<span class="nc" id="L243">    return this.hitAnEnemy;</span>
+  }
+
+  /**
+   * Changes whether the character has hit an enemy from above based on the given parameter
+   *
+   * @param hitAnEnemy CharacterImpl's new hitAnEnemy value Should be true if it has hit an enemy
+   *     from above and false otherwise
+   */
+  @Override
+  public void setHitAnEnemy(boolean hitAnEnemy) {
+<span class="nc" id="L254">    this.hitAnEnemy = hitAnEnemy;</span>
+<span class="nc" id="L255">  }</span>
+
+  /**
+   * Tells which state the character is at - CharacterContinue, CharacterReconfigure, CharacterWon,
+   * and CharacterLost are four possible states for the character
+   *
+   * @return The state of the character it is currently at
+   */
+  @Override
+  public CharacterState getState() {
+<span class="nc" id="L265">    return this.state;</span>
+  }
+
+  /**
+   * Called when the hero is told to jump. If the hero is in the middle of the air nothing changes
+   * and returns false otherwise, the hero is marked as having started jumping and returns true
+   *
+   * @return If the jump has been successful or not
+   */
+  @Override
+  public boolean jump() {
+<span class="nc" id="L276">    hasStopped = false;</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">    if (isJumping) {</span>
+<span class="nc" id="L278">      return false;</span>
+    }
+<span class="nc" id="L280">    isJumping = true;</span>
+    // isMovingDown = false;
+<span class="nc" id="L282">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to go left. If the hero is at x position 0, nothing changes and
+   * returns false otherwise, the hero is marked as having started moving left and returns true
+   *
+   * @return If the movement to left has been successful or not
+   */
+  @Override
+  public boolean moveLeft() {
+<span class="nc" id="L293">    isMovingRight = false;</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">    if (xPos == 0) {</span>
+<span class="nc" id="L295">      isMovingLeft = false;</span>
+<span class="nc" id="L296">      hasStopped = true;</span>
+<span class="nc" id="L297">      return false;</span>
+    }
+
+<span class="nc" id="L300">    hasStopped = false;</span>
+<span class="nc" id="L301">    isMovingLeft = true;</span>
+<span class="nc" id="L302">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to go down. the hero is marked as having started moving down and
+   * returns true
+   *
+   * @return If the downward movement has been successful or not
+   */
+  @Override
+  public boolean moveDown() {
+<span class="nc" id="L313">    isMovingDown = true;</span>
+    // isJumping = false;
+<span class="nc" id="L315">    return true;</span>
+  }
+
+  /**
+   * Called when the character wants to stop moving down only (eg- when he has reached the floor)
+   *
+   * @return boolean value indicating whether the downward movement has been successful
+   */
+  @Override
+  public boolean stopMovingDown() {
+<span class="nc" id="L325">    isMovingDown = false;</span>
+    // isJumping = true;
+<span class="nc" id="L327">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to go right. the hero is marked as having started moving left and
+   * returns true
+   *
+   * @return If the movement to right has been successful or not
+   */
+  @Override
+  public boolean moveRight() {
+    // xPos += 1;
+<span class="nc" id="L339">    isMovingRight = true;</span>
+<span class="nc" id="L340">    isMovingLeft = false;</span>
+<span class="nc" id="L341">    hasStopped = false;</span>
+<span class="nc" id="L342">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to stop moving. the hero is marked as having stopped all other
+   * movements and returns true
+   *
+   * @return If the hero has successfully stopped or not
+   */
+  @Override
+  public boolean stopMoving() {
+<span class="nc" id="L353">    isMovingDown = false;</span>
+<span class="nc" id="L354">    isJumping = false;</span>
+<span class="nc" id="L355">    isMovingLeft = false;</span>
+<span class="nc" id="L356">    isMovingRight = false;</span>
+<span class="nc" id="L357">    hasStopped = true;</span>
+<span class="nc" id="L358">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to stop moving right only the hero is marked as having stopped its
+   * movement to the right and returns true
+   *
+   * @return If stopping the movement to the right has been successful or not
+   */
+  @Override
+  public boolean stopMovingRight() {
+<span class="nc" id="L369">    isMovingRight = false;</span>
+<span class="nc" id="L370">    return true;</span>
+  }
+
+  /**
+   * Called when the hero is told to stop moving left only the hero is marked as having stopped its
+   * movement to the left and returns true
+   *
+   * @return If stopping the movement to the left has been successful or not
+   */
+  @Override
+  public boolean stopMovingLeft() {
+<span class="nc" id="L381">    isMovingLeft = false;</span>
+<span class="nc" id="L382">    return true;</span>
+  }
+
+  /**
+   * Changes the image path to the character with the given parameter - this must be a valid photo
+   * in the resources
+   *
+   * @param imagePath The new image path to the character as a String
+   */
+  @Override
+  public void setImagePath(String imagePath) {
+<span class="nc" id="L393">    this.imagePath = imagePath;</span>
+<span class="nc" id="L394">  }</span>
+
+  /**
+   * Returns the remaining lives of the character as an arrayList of Life objects
+   *
+   * @return character's remaining lives
+   */
+  @Override
+  public ArrayList&lt;Life&gt; getLife() {
+<span class="nc" id="L403">    return this.life;</span>
+  }
+
+  /**
+   * Called when the character has lost a life - eg hitting an enemy from sides ot bottom Reduces
+   * his lives by one and indicates that he has hit an enemy in the last movement
+   */
+  @Override
+  public void loseALife() {
+<span class="nc" id="L412">    this.life.remove(this.life.size() - 1);</span>
+<span class="nc" id="L413">    this.lostALife = true;</span>
+<span class="nc" id="L414">  }</span>
+
+  /**
+   * Tells whether the character has lost a life in the last movement or not - must be true if it
+   * has and false otherwise
+   *
+   * @return The boolean showing whether the character has lost a life
+   */
+  @Override
+  public boolean hasLostALife() {
+<span class="nc" id="L424">    return this.lostALife;</span>
+  }
+
+  /**
+   * Changes whether the character has lost a life in the last movement or not based on the
+   * parameter - true if it has and false otherwise
+   *
+   * @param lostALife CharacterImpl's new lostALife value Should be true if it has lost a life in
+   *     the last movement and false otherwise
+   */
+  @Override
+  public void setLostALife(boolean lostALife) {
+<span class="nc" id="L436">    this.lostALife = lostALife;</span>
+<span class="nc" id="L437">  }</span>
+
+  /**
+   * Tells which entity type the character has - Dynamic (for those entities followed by the camera)
+   * or Fixed for the rest
+   *
+   * @return CharacterImpl's type of entity as a String
+   */
+  @Override
+  public String getEntityType() {
+<span class="nc" id="L447">    return this.type;</span>
+  }
+
+  /**
+   * Called from LevelImpl to indicate whether character is moving right or not - returns true if it
+   * is and false otherwise
+   *
+   * @return The boolean indicating whether the character is moving right
+   */
+  @Override
+  public boolean getIsMovingRight() {
+<span class="nc" id="L458">    return this.isMovingRight;</span>
+  }
+
+  /**
+   * Marks or unmarks the character as moving right using the passed parameter
+   *
+   * @param isMovingRight - Marks the character as moving if the passed boolean is true and unmarks
+   *     it from moving to the right if the passed parameter is false
+   */
+  @Override
+  public void setIsMovingRight(boolean isMovingRight) {
+<span class="nc" id="L469">    this.isMovingRight = isMovingRight;</span>
+<span class="nc" id="L470">  }</span>
+
+  /**
+   * Called from LevelImpl to indicate whether character is moving left or not - returns true if it
+   * is and false otherwise
+   *
+   * @return The boolean indicating whether the character is moving left
+   */
+  @Override
+  public boolean getIsMovingLeft() {
+<span class="nc" id="L480">    return this.isMovingLeft;</span>
+  }
+
+  /**
+   * Marks or unmarks the character as moving left using the passed parameter
+   *
+   * @param isMovingLeft - Marks the character as moving if the passed boolean is true and unmarks
+   *     it from moving to the left if the passed parameter is false
+   */
+  @Override
+  public void setIsMovingLeft(boolean isMovingLeft) {
+<span class="nc" id="L491">    this.isMovingLeft = isMovingLeft;</span>
+<span class="nc" id="L492">  }</span>
+
+  /**
+   * Called from LevelImpl to indicate whether character is moving down or not - returns true if it
+   * is and false otherwise
+   *
+   * @return The boolean indicating whether the character is moving down
+   */
+  @Override
+  public boolean getIsMovingDown() {
+<span class="nc" id="L502">    return this.isMovingDown;</span>
+  }
+
+  /**
+   * Marks or unmarks the character as moving down using the passed parameter
+   *
+   * @param isMovingDown - Marks the character as moving if the passed boolean is true and unmarks
+   *     it from moving down if the passed parameter is false
+   */
+  @Override
+  public void setIsMovingDown(boolean isMovingDown) {
+<span class="nc" id="L513">    this.isMovingDown = isMovingDown;</span>
+<span class="nc" id="L514">  }</span>
+
+  /**
+   * Called from LevelImpl to indicate whether character is jumping or not - returns true if it is
+   * and false otherwise
+   *
+   * @return The boolean indicating whether the character is jumping
+   */
+  @Override
+  public boolean getIsJumping() {
+<span class="nc" id="L524">    return this.isJumping;</span>
+  }
+
+  /**
+   * Marks or unmarks the character as jumping using the passed parameter
+   *
+   * @param isJumping - Marks the character as jumping if the passed boolean is true and unmarks
+   *     it from jumping if the passed parameter is false
+   */
+  @Override
+  public void setIsJumping(boolean isJumping) {
+<span class="nc" id="L535">    this.isJumping = isJumping;</span>
+<span class="nc" id="L536">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

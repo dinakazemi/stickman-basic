@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlatformFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">PlatformFactory.java</span></div><h1>PlatformFactory.java</h1><pre class="source lang-java linenums">package stickman.model;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+/** Creates platforms based on the information acquired from json file */
+/*
+using the factory method to make the platform.
+At this stage, the factory method seems irrelevant as we have only one type of platform
+But as new platform types will be added in the next stage, factory method is necessary.
+ */
+<span class="nc" id="L13">public class PlatformFactory {</span>
+
+<span class="nc" id="L15">  private static ErrorLogger eLog = new ErrorLogger();</span>
+
+  /**
+   * Creates different types of platforms according to the information received from the json file
+   * and returns an array of platforms of a certain type. If the information received is not in the
+   * correct format or type, an error will be recorded to the ErrorLogger - at this stage, only one
+   * type of platform has been implemented
+   *
+   * @param platformInfo The information about the enemy received from the json file
+   * @param levelHeight The height of the level's floor
+   * @return an array of enemies of a certain type used by the LevelImpl class
+   */
+  public static ArrayList&lt;Platform&gt; make(
+      HashMap&lt;String, ArrayList&gt; platformInfo, double levelHeight) {
+<span class="nc bnc" id="L29" title="All 2 branches missed.">    if (platformInfo == null) {</span>
+<span class="nc" id="L30">      return null;</span>
+    }
+<span class="nc" id="L32">    ArrayList&lt;Platform&gt; result = new ArrayList&lt;Platform&gt;();</span>
+    // Getting the iterator
+<span class="nc" id="L34">    Iterator iterator = platformInfo.entrySet().iterator();</span>
+
+<span class="nc bnc" id="L36" title="All 2 branches missed.">    while (iterator.hasNext()) {</span>
+
+      // if the format of the file is incorrect (ie it's not &lt;String, ArrayList&gt;, we will write an
+      // error to the ErrorLogger object.
+      try {
+<span class="nc" id="L41">        Map.Entry&lt;String, ArrayList&gt; element = (Map.Entry&lt;String, ArrayList&gt;) iterator.next();</span>
+<span class="nc" id="L42">        String key = element.getKey();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (key.equalsIgnoreCase(&quot;NormalPlatform&quot;)) {</span>
+
+          // checks if the user has entered a non-double as for platform's properties.
+          try {
+<span class="nc" id="L47">            ArrayList&lt;ArrayList&lt;Double&gt;&gt; value = platformInfo.get(key);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            for (ArrayList&lt;Double&gt; properties : value) {</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">              if (properties.size() &lt; 4) {</span>
+<span class="nc" id="L50">                eLog.setMessage(</span>
+                    &quot;Insufficient elements for normalPlatform. Please provide four elements per normalPlatform&quot;);
+<span class="nc" id="L52">                eLog.log();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">              } else if (properties.get(0) &lt; 0</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                  || properties.get(1) &lt; 0</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                  || properties.get(2) &lt;= 0</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                  || properties.get(3) &lt;= 0) {</span>
+<span class="nc" id="L57">                eLog.setMessage(</span>
+                    &quot;x and y position of the normalPlatform must be non-negative while its height and width must be strictly positive.&quot;);
+<span class="nc" id="L59">                eLog.log();</span>
+              } else {
+<span class="nc" id="L61">                NormalPlatform normalPlatform =</span>
+                    new NormalPlatform(
+<span class="nc" id="L63">                        properties.get(0),</span>
+<span class="nc" id="L64">                        properties.get(1),</span>
+<span class="nc" id="L65">                        properties.get(2),</span>
+<span class="nc" id="L66">                        properties.get(3),</span>
+                        levelHeight);
+<span class="nc" id="L68">                result.add(normalPlatform);</span>
+              }
+<span class="nc" id="L70">            }</span>
+<span class="nc" id="L71">          } catch (Exception ex) {</span>
+<span class="nc" id="L72">            eLog.setMessage(</span>
+                &quot;please make sure all enemy properties are doubles for a normalPlatform&quot;);
+<span class="nc" id="L74">            eLog.log();</span>
+<span class="nc" id="L75">          }</span>
+        }
+<span class="nc" id="L77">      } catch (Exception ex) {</span>
+<span class="nc" id="L78">        eLog.setMessage(</span>
+            &quot;invalid format for platforms Please provide a 2-d array for platform properties.&quot;);
+<span class="nc" id="L80">        eLog.log();</span>
+<span class="nc" id="L81">      }</span>
+    }
+<span class="nc" id="L83">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

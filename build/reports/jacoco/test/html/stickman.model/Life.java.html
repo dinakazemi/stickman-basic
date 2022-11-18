@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Life.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">Life.java</span></div><h1>Life.java</h1><pre class="source lang-java linenums">package stickman.model;
+
+/**
+ * Creates an instance of the life the character has. Heart images are used to represent character's
+ * lives and they move with the character A game window can contain many lives in it
+ */
+public class Life implements Entity {
+  private String imagePath;
+  private double xPos;
+  private double yPos;
+  private double height;
+  private double width;
+  private Layer layer;
+  private String type;
+  private boolean mustDisappear;
+  private boolean reset;
+
+<span class="nc" id="L18">  public Life(double i) {</span>
+<span class="nc" id="L19">    this.xPos = i;</span>
+<span class="nc" id="L20">    this.yPos = 0;</span>
+<span class="nc" id="L21">    this.height = 20;</span>
+<span class="nc" id="L22">    this.width = 20;</span>
+<span class="nc" id="L23">    this.layer = Layer.FOREGROUND;</span>
+<span class="nc" id="L24">    this.type = &quot;Fixed&quot;;</span>
+<span class="nc" id="L25">    mustDisappear = false;</span>
+<span class="nc" id="L26">    this.imagePath = &quot;heart.png&quot;;</span>
+<span class="nc" id="L27">    this.reset = false;</span>
+<span class="nc" id="L28">  }</span>
+
+  /**
+   * Tells the view the image path for the life at the current moment in time - a hear represent
+   * each life a character has
+   *
+   * @return The path of the image where resources/ is the relative root (e.g. &quot;example.png&quot; will
+   *     look for resources/example.png)
+   */
+  @Override
+  public String getImagePath() {
+<span class="nc" id="L39">    return this.imagePath;</span>
+  }
+
+  /**
+   * Tells the view what the x position of the life currently is - The first life always has the
+   * same x position as the character.
+   *
+   * @return The x position using the top left hand corner as 0,0 and increasing as the position
+   *     moves right.
+   */
+  @Override
+  public double getXPos() {
+<span class="nc" id="L51">    return this.xPos;</span>
+  }
+
+  /**
+   * Tells the view what the y position of the life currently is. All life objects have a y position
+   * of 0.
+   *
+   * @return The y position using the top left hand corner as 0,0 and increasing as the position
+   *     moves DOWN (JavaFX does not use the standard mathematics axes with the origin in the bottom
+   *     left)
+   */
+  @Override
+  public double getYPos() {
+<span class="nc" id="L64">    return this.yPos;</span>
+  }
+
+  /**
+   * Tells the view how tall to draw the given life object - each life objects has a height of 20
+   *
+   * @return The height in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getHeight() {
+<span class="nc" id="L74">    return this.height;</span>
+  }
+
+  /**
+   * Tells the view how wide to draw the given life object - each life objects has a width of 20
+   *
+   * @return The width in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getWidth() {
+<span class="nc" id="L84">    return this.width;</span>
+  }
+
+  /**
+   * Tells the view what Z-order to draw the life object on - to the back, or to the front. The
+   * order within each layer is undefined - all life objects have a BACKGROUND layer
+   *
+   * @return The layer to draw the entity on.
+   */
+  @Override
+  public Entity.Layer getLayer() {
+<span class="nc" id="L95">    return this.layer;</span>
+  }
+
+  /**
+   * Returns the type of the entity that the life object has - Dynamic (followed by the camera) or
+   * Fixed (not followed)
+   *
+   * @return the life object's entity type
+   */
+  @Override
+  public String getEntityType() {
+<span class="nc" id="L106">    return this.type;</span>
+  }
+
+  /**
+   * Updates the life object's current x position with the given parameter
+   *
+   * @param x life object's new x position. Should be a non-negative double using the top left hand
+   *     corner as 0,0 and increasing as the position moves right
+   */
+  @Override
+  public void setXPos(double x) {
+<span class="nc" id="L117">    this.xPos = x;</span>
+<span class="nc" id="L118">  }</span>
+
+  /**
+   * Returns true if the life object must disappear and false otherwise - at the current stage, the
+   * life object is always unhidden
+   *
+   * @return The boolean indicating whether the life object must disappear or not
+   */
+  @Override
+  public boolean mustDisappear() {
+<span class="nc" id="L128">    return this.mustDisappear;</span>
+  }
+
+  /**
+   * Updates whether the life object should go hidden using the given parameter
+   *
+   * @param mustDisappear life object's new mustDisappear value Should be true if it should go
+   *     hidden and false otherwise
+   */
+  @Override
+  public void setMustDisappear(boolean mustDisappear) {
+<span class="nc" id="L139">    this.mustDisappear = mustDisappear;</span>
+<span class="nc" id="L140">  }</span>
+
+  /**
+   * Handles this life object's collision with the character - since the enemy and the characterImpl do
+   * not collide, this method does nothing
+   *
+   * @param character the character that has collided with the life object
+   */
+  @Override
+<span class="nc" id="L149">  public void handleCollision(Character character) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

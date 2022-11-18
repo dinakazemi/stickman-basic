@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MovingEnemyMovement.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">MovingEnemyMovement.java</span></div><h1>MovingEnemyMovement.java</h1><pre class="source lang-java linenums">package stickman.model;
+/** Creates the strategy for a moving enemy to move in the game */
+<span class="nc" id="L3">public class MovingEnemyMovement implements EnemyMovement {</span>
+
+  /**
+   * Moves the enemy by implementing a bouncy movement behaviour. The enemy moves either in the y or
+   * x direction, depending on which direction it is told to move in
+   *
+   * @param enemy The enemy that is moving, Should be a moving enemy
+   */
+  @Override
+  public void move(Enemy enemy) {
+
+<span class="nc" id="L14">    double initialXPos = enemy.getInitialXPos();</span>
+<span class="nc" id="L15">    double initialYPos = enemy.getInitialYPos();</span>
+
+<span class="nc bnc" id="L17" title="All 2 branches missed.">    if (enemy.IsMovingX() == 1) {</span>
+<span class="nc bnc" id="L18" title="All 2 branches missed.">      if (initialXPos - enemy.getXPos() &gt; -0.25) {</span>
+<span class="nc" id="L19">        enemy.setMovementDir(1);</span>
+      }
+<span class="nc bnc" id="L21" title="All 2 branches missed.">      if (initialXPos - enemy.getXPos() &lt; -30.75) {</span>
+<span class="nc" id="L22">        enemy.setMovementDir(-1);</span>
+      }
+<span class="nc bnc" id="L24" title="All 2 branches missed.">      if (enemy.getMovementDir() == 1) {</span>
+<span class="nc" id="L25">        enemy.setXPos(enemy.getXPos() + 0.25);</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">      } else if (enemy.getMovementDir() == -1) {</span>
+<span class="nc" id="L27">        enemy.setXPos(enemy.getXPos() - 0.25);</span>
+      }
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">    } else if (enemy.IsMovingY() == 1) {</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">      if (initialYPos - enemy.getYPos() &gt; -0.25) {</span>
+<span class="nc" id="L32">        enemy.setMovementDir(1);</span>
+      }
+<span class="nc bnc" id="L34" title="All 2 branches missed.">      if (initialYPos - enemy.getYPos() &lt; -50.75) {</span>
+<span class="nc" id="L35">        enemy.setMovementDir(-1);</span>
+      }
+<span class="nc bnc" id="L37" title="All 2 branches missed.">      if (enemy.getMovementDir() == 1) {</span>
+<span class="nc" id="L38">        enemy.setYPos(enemy.getYPos() + 0.25);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">      } else if (enemy.getMovementDir() == -1) {</span>
+<span class="nc" id="L40">        enemy.setYPos(enemy.getYPos() - 0.25);</span>
+      }
+    }
+<span class="nc" id="L43">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

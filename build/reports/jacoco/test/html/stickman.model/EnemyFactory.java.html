@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnemyFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">EnemyFactory.java</span></div><h1>EnemyFactory.java</h1><pre class="source lang-java linenums">package stickman.model;
+/** Creates enemies based on the information acquired from json file */
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+<span class="nc" id="L8">public class EnemyFactory {</span>
+
+<span class="nc" id="L10">  private static ErrorLogger eLog = new ErrorLogger();</span>
+
+  /**
+   * Creates different types of enemies according to the information received from the json file and
+   * returns an array of enemies of a certain type. If the information received is not in the
+   * correct format or type, an error will be recorded to the ErrorLogger - an enemy is one of the
+   * following 4 types: SteadyEnemy, MovingEnemy, AngryENnemy, DisappearingEnemy
+   *
+   * @param enemiesInfo The information about the enemy received from the json file
+   * @param levelHeight The height of the level's floor
+   * @return an array of enemies of a certain type used by the LevelImpl class
+   */
+  public static ArrayList&lt;Enemy&gt; make(HashMap&lt;String, ArrayList&gt; enemiesInfo, double levelHeight) {
+
+    // if the given map is null (eg no enemies in the level)
+<span class="nc bnc" id="L25" title="All 2 branches missed.">    if (enemiesInfo == null) {</span>
+<span class="nc" id="L26">      return null;</span>
+    }
+<span class="nc" id="L28">    ArrayList&lt;Enemy&gt; result = new ArrayList&lt;Enemy&gt;();</span>
+    // Getting the iterator
+<span class="nc" id="L30">    Iterator iterator = enemiesInfo.entrySet().iterator();</span>
+
+    // going through the elements in the map
+<span class="nc bnc" id="L33" title="All 2 branches missed.">    while (iterator.hasNext()) {</span>
+
+      // if the format of the file is incorrect (ie it's not &lt;String, ArrayList&gt;, we will write an
+      // error to the ErrorLogger object.
+      try {
+<span class="nc" id="L38">        Map.Entry&lt;String, ArrayList&gt; element = (Map.Entry&lt;String, ArrayList&gt;) iterator.next();</span>
+<span class="nc" id="L39">        String key = element.getKey();</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (key.equalsIgnoreCase(&quot;steadyEnemy&quot;)) {</span>
+
+          // checks if the user has entered a non-double as for enemy's properties.
+          try {
+<span class="nc" id="L44">            ArrayList&lt;ArrayList&lt;Double&gt;&gt; value = enemiesInfo.get(key);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            for (ArrayList&lt;Double&gt; properties : value) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">              if (properties.size() &lt; 4) {</span>
+<span class="nc" id="L47">                eLog.setMessage(</span>
+                    &quot;Insufficient elements for steadyEnemy. Please provide four elements per steadyEnemy&quot;);
+<span class="nc" id="L49">                eLog.log();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">              } else if (properties.get(0) &lt; 0</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                  || properties.get(1) &lt; 0</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                  || properties.get(2) &lt;= 0</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">                  || properties.get(3) &lt;= 0) {</span>
+<span class="nc" id="L54">                eLog.setMessage(</span>
+                    &quot;x and y position of the steadyEnemy must be non-negative while its height and width must be positive. &quot;);
+<span class="nc" id="L56">                eLog.log();</span>
+              } else {
+<span class="nc" id="L58">                SteadyEnemy steadyEnemy =</span>
+                    new SteadyEnemy(
+<span class="nc" id="L60">                        properties.get(0),</span>
+<span class="nc" id="L61">                        properties.get(1),</span>
+<span class="nc" id="L62">                        properties.get(2),</span>
+<span class="nc" id="L63">                        properties.get(3),</span>
+                        levelHeight);
+<span class="nc" id="L65">                result.add(steadyEnemy);</span>
+              }
+<span class="nc" id="L67">            }</span>
+<span class="nc" id="L68">          } catch (Exception ex) {</span>
+<span class="nc" id="L69">            eLog.setMessage(&quot;please make sure all enemy properties are doubles for a steadyEnemy&quot;);</span>
+<span class="nc" id="L70">            eLog.log();</span>
+<span class="nc" id="L71">          }</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        } else if (key.equalsIgnoreCase(&quot;movingEnemy&quot;)) {</span>
+
+          // checks if the user has entered a non-double as for enemy's properties.
+          try {
+<span class="nc" id="L77">            ArrayList&lt;ArrayList&lt;Double&gt;&gt; value = enemiesInfo.get(key);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            for (ArrayList&lt;Double&gt; properties : value) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">              if (properties.size() &lt; 6) {</span>
+<span class="nc" id="L80">                eLog.setMessage(</span>
+                    &quot;Insufficient elements for movingEnemy. Please provide six elements per movingEnemy&quot;);
+<span class="nc" id="L82">                eLog.log();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">              } else if (properties.get(0) &lt; 0</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                  || properties.get(1) &lt; 0</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                  || properties.get(2) &lt;= 0</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                  || properties.get(3) &lt;= 0) {</span>
+<span class="nc" id="L87">                eLog.setMessage(</span>
+                    &quot;x and y position of the movingEnemy must be non-negative while its height and width must be positive. &quot;);
+<span class="nc" id="L89">                eLog.log();</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">              } else if (properties.get(4) != 1 &amp;&amp; properties.get(4) != 0) {</span>
+<span class="nc" id="L91">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the movingEnemy is moving in the x direction&quot;);
+<span class="nc" id="L93">                eLog.log();</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">              } else if (properties.get(5) != 1 &amp;&amp; properties.get(5) != 0) {</span>
+<span class="nc" id="L95">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the movingEnemy is moving in the y direction&quot;);
+<span class="nc" id="L97">                eLog.log();</span>
+              } else {
+<span class="nc" id="L99">                MovingEnemy movingEnemy =</span>
+                    new MovingEnemy(
+<span class="nc" id="L101">                        properties.get(0),</span>
+<span class="nc" id="L102">                        properties.get(1),</span>
+<span class="nc" id="L103">                        properties.get(2),</span>
+<span class="nc" id="L104">                        properties.get(3),</span>
+<span class="nc" id="L105">                        properties.get(4),</span>
+<span class="nc" id="L106">                        properties.get(5),</span>
+                        levelHeight);
+<span class="nc" id="L108">                result.add(movingEnemy);</span>
+              }
+<span class="nc" id="L110">            }</span>
+<span class="nc" id="L111">          } catch (Exception ex) {</span>
+<span class="nc" id="L112">            eLog.setMessage(&quot;please make sure all enemy properties are doubles for a movingEnemy&quot;);</span>
+<span class="nc" id="L113">            eLog.log();</span>
+<span class="nc" id="L114">          }</span>
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        } else if (key.equalsIgnoreCase(&quot;angryEnemy&quot;)) {</span>
+          try {
+<span class="nc" id="L118">            ArrayList&lt;ArrayList&lt;Double&gt;&gt; value = enemiesInfo.get(key);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            for (ArrayList&lt;Double&gt; properties : value) {</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">              if (properties.size() &lt; 6) {</span>
+<span class="nc" id="L121">                eLog.setMessage(</span>
+                    &quot;Insufficient elements for angryEnemy. Please provide six elements per angryEnemy&quot;);
+<span class="nc" id="L123">                eLog.log();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">              } else if (properties.get(0) &lt; 0</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                  || properties.get(1) &lt; 0</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                  || properties.get(2) &lt;= 0</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                  || properties.get(3) &lt;= 0) {</span>
+<span class="nc" id="L128">                eLog.setMessage(</span>
+                    &quot;x and y position of the angryEnemy must be non-negative while its height and width must be positive. &quot;);
+<span class="nc" id="L130">                eLog.log();</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">              } else if (properties.get(4) != 1 &amp;&amp; properties.get(4) != 0) {</span>
+<span class="nc" id="L132">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the angryEnemy is moving in the x direction&quot;);
+<span class="nc" id="L134">                eLog.log();</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">              } else if (properties.get(5) != 1 &amp;&amp; properties.get(5) != 0) {</span>
+<span class="nc" id="L136">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the angryEnemy is moving in the y direction&quot;);
+<span class="nc" id="L138">                eLog.log();</span>
+              } else {
+<span class="nc" id="L140">                AngryEnemy angryEnemy =</span>
+                    new AngryEnemy(
+<span class="nc" id="L142">                        properties.get(0),</span>
+<span class="nc" id="L143">                        properties.get(1),</span>
+<span class="nc" id="L144">                        properties.get(2),</span>
+<span class="nc" id="L145">                        properties.get(3),</span>
+<span class="nc" id="L146">                        properties.get(4),</span>
+<span class="nc" id="L147">                        properties.get(5),</span>
+                        levelHeight);
+<span class="nc" id="L149">                result.add(angryEnemy);</span>
+              }
+<span class="nc" id="L151">            }</span>
+<span class="nc" id="L152">          } catch (Exception ex) {</span>
+<span class="nc" id="L153">            eLog.setMessage(&quot;please make sure all enemy properties are doubles for a angryEnemy&quot;);</span>
+<span class="nc" id="L154">            eLog.log();</span>
+<span class="nc" id="L155">          }</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        } else if (key.equalsIgnoreCase(&quot;DisappearingEnemy&quot;)) {</span>
+          try {
+<span class="nc" id="L159">            ArrayList&lt;ArrayList&lt;Double&gt;&gt; value = enemiesInfo.get(key);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            for (ArrayList&lt;Double&gt; properties : value) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">              if (properties.size() &lt; 6) {</span>
+<span class="nc" id="L162">                eLog.setMessage(</span>
+                    &quot;Insufficient elements for DisappearingEnemy. Please provide six elements per DisappearingEnemy&quot;);
+<span class="nc" id="L164">                eLog.log();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">              } else if (properties.get(0) &lt; 0</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                  || properties.get(1) &lt; 0</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                  || properties.get(2) &lt;= 0</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                  || properties.get(3) &lt;= 0) {</span>
+<span class="nc" id="L169">                eLog.setMessage(</span>
+                    &quot;x and y position of the DisappearingEnemy must be non-negative while its height and width must be positive. &quot;);
+<span class="nc" id="L171">                eLog.log();</span>
+<span class="nc bnc" id="L172" title="All 4 branches missed.">              } else if (properties.get(4) != 1 &amp;&amp; properties.get(4) != 0) {</span>
+<span class="nc" id="L173">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the DisappearingEnemy is moving in the x direction&quot;);
+<span class="nc" id="L175">                eLog.log();</span>
+<span class="nc bnc" id="L176" title="All 4 branches missed.">              } else if (properties.get(5) != 1 &amp;&amp; properties.get(5) != 0) {</span>
+<span class="nc" id="L177">                eLog.setMessage(</span>
+                    &quot;Please provide a 0 or 1 to indicate whether the DisappearingEnemy is moving in the y direction&quot;);
+<span class="nc" id="L179">                eLog.log();</span>
+              } else {
+<span class="nc" id="L181">                DisappearingEnemy disappearingEnemy =</span>
+                    new DisappearingEnemy(
+<span class="nc" id="L183">                        properties.get(0),</span>
+<span class="nc" id="L184">                        properties.get(1),</span>
+<span class="nc" id="L185">                        properties.get(2),</span>
+<span class="nc" id="L186">                        properties.get(3),</span>
+<span class="nc" id="L187">                        properties.get(4),</span>
+<span class="nc" id="L188">                        properties.get(5),</span>
+                        levelHeight);
+<span class="nc" id="L190">                result.add(disappearingEnemy);</span>
+              }
+<span class="nc" id="L192">            }</span>
+<span class="nc" id="L193">          } catch (Exception ex) {</span>
+<span class="nc" id="L194">            eLog.setMessage(</span>
+                &quot;please make sure all enemy properties are doubles for a DisappearingEnemy&quot;);
+<span class="nc" id="L196">            eLog.log();</span>
+<span class="nc" id="L197">          }</span>
+        }
+
+<span class="nc" id="L200">      } catch (Exception ex) {</span>
+<span class="nc" id="L201">        eLog.setMessage(</span>
+            &quot;Invalid format for enemies. Please provide a 2-d array list for enemy properties.&quot;);
+<span class="nc" id="L203">        eLog.log();</span>
+<span class="nc" id="L204">      }</span>
+
+      // separating each key and making them by calling the relevant enemy class
+    }
+<span class="nc" id="L208">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

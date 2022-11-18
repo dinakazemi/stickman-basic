@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AngryEnemy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">AngryEnemy.java</span></div><h1>AngryEnemy.java</h1><pre class="source lang-java linenums">package stickman.model;
+
+/**
+ * Creates an instance of the angry enemy. Moves at a double speed compared to other enemies. An
+ * angry enemy must always move in either x or y direction A game window can have many angry enemies
+ */
+public class AngryEnemy extends Enemy {
+  private String imagePath;
+  private double xPos;
+  private double yPos;
+  private double height;
+  private double width;
+  private Layer layer;
+  private double isMovingX;
+  private double isMovingY;
+  private String type;
+  private double initialXPos;
+  private double initialYPos;
+  private int direction;
+  private double levelHeight;
+  private boolean mustDisappear;
+  private EnemyMovement movingStrategy;
+  private EntityCollisionStrategy collsionStrategy;
+
+  public AngryEnemy(
+      double xPos,
+      double yPos,
+      double height,
+      double width,
+      double isMovingx,
+      double isMovingY,
+<span class="nc" id="L32">      double levelHeight) {</span>
+<span class="nc" id="L33">    this.xPos = xPos;</span>
+<span class="nc" id="L34">    this.yPos = yPos;</span>
+<span class="nc" id="L35">    this.height = height;</span>
+<span class="nc" id="L36">    this.width = width;</span>
+<span class="nc" id="L37">    this.imagePath = &quot;slimeRa.png&quot;;</span>
+<span class="nc" id="L38">    this.layer = Layer.FOREGROUND;</span>
+<span class="nc" id="L39">    this.isMovingX = isMovingx;</span>
+<span class="nc" id="L40">    this.isMovingY = isMovingY;</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">    if (isMovingX == 0 &amp;&amp; isMovingY == 0) {</span>
+<span class="nc" id="L42">      isMovingX = 1;</span>
+    }
+<span class="nc bnc" id="L44" title="All 4 branches missed.">    if (isMovingX == 1 &amp;&amp; isMovingY == 1) {</span>
+<span class="nc" id="L45">      isMovingX = 1;</span>
+<span class="nc" id="L46">      isMovingY = 0;</span>
+    }
+<span class="nc" id="L48">    this.type = &quot;Fixed&quot;;</span>
+<span class="nc" id="L49">    this.initialXPos = xPos;</span>
+<span class="nc" id="L50">    this.initialYPos = yPos;</span>
+<span class="nc" id="L51">    this.direction = 1;</span>
+<span class="nc" id="L52">    this.levelHeight = levelHeight;</span>
+<span class="nc" id="L53">    this.mustDisappear = false;</span>
+<span class="nc" id="L54">    this.movingStrategy = new AngryEnemyMovement();</span>
+<span class="nc" id="L55">    this.collsionStrategy = new AngryEnemyCollisionStrategy();</span>
+<span class="nc" id="L56">  }</span>
+
+  /**
+   * Tells the view the image path for the enemy at the current moment in time (this means the image
+   * can change, enabling simple gif-like animation)
+   *
+   * @return The path of the image where resources/ is the relative root (e.g. &quot;example.png&quot; will
+   *     look for resources/example.png)
+   */
+  @Override
+  public String getImagePath() {
+<span class="nc" id="L67">    return this.imagePath;</span>
+  }
+
+  /**
+   * Tells the view what the x position of the enemy currently is.
+   *
+   * @return The x position using the top left hand corner as 0,0 and increasing as the position
+   *     moves right.
+   */
+  @Override
+  public double getXPos() {
+<span class="nc" id="L78">    return this.xPos;</span>
+  }
+
+  /**
+   * Updates the enemy's current x position with the given parameter
+   *
+   * @param xPos enemy's new x position Should be a non-negative double using the top left hand
+   *     corner as 0,0 and increasing as the position moves right
+   */
+  @Override
+  public void setXPos(double xPos) {
+<span class="nc" id="L89">    this.xPos = xPos;</span>
+<span class="nc" id="L90">  }</span>
+
+  /**
+   * Tells the view what the y position of the enemy currently is.
+   *
+   * @return The y position using the top left hand corner as 0,0 and increasing as the position
+   *     moves DOWN (JavaFX does not use the standard mathematics axes with the origin in the bottom
+   *     left)
+   */
+  @Override
+  public double getYPos() {
+<span class="nc" id="L101">    return this.yPos;</span>
+  }
+
+  /**
+   * Updates the enemy's current y position with the given parameter
+   *
+   * @param yPos enemy's new y position Should be a non-negative double using the top left hand
+   *     corner as 0,0 and increasing as the position moves down
+   */
+  @Override
+  public void setYPos(double yPos) {
+<span class="nc" id="L112">    this.yPos = yPos;</span>
+<span class="nc" id="L113">  }</span>
+
+  /**
+   * Gives the initial x position of the enemy (at the time of creation)
+   *
+   * @return enemy's initial x position a non-negative double using the top left hand corner as 0,0
+   *     and increasing as the position moves right
+   */
+  public double getInitialXPos() {
+<span class="nc" id="L122">    return this.initialXPos;</span>
+  }
+
+  /**
+   * Gives the initial y position of the enemy (at the time of creation)
+   *
+   * @return enemy's initial y position a non-negative double using the top left hand corner as 0,0
+   *     and increasing as the position moves down
+   */
+  @Override
+  public double getInitialYPos() {
+<span class="nc" id="L133">    return this.initialYPos;</span>
+  }
+
+  /**
+   * Tells the view how tall to draw the given enemy (can change over time)
+   *
+   * @return The height in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getHeight() {
+<span class="nc" id="L143">    return this.height;</span>
+  }
+
+  /**
+   * Tells the view how wide to draw the given enemy (can change over time)
+   *
+   * @return The width in co-ordinate space (effectively number of pixels)
+   */
+  @Override
+  public double getWidth() {
+<span class="nc" id="L153">    return this.width;</span>
+  }
+
+  /**
+   * Tells the view what Z-order to draw the enemy on - to the back, or to the front. The order
+   * within each layer is undefined.
+   *
+   * @return The layer to draw the entity on.
+   */
+  @Override
+  public Layer getLayer() {
+<span class="nc" id="L164">    return this.layer;</span>
+  }
+
+  /**
+   * Returns true if the enemy must disappear and false otherwise - eg when the character hits the
+   * enemy from above it disappears
+   *
+   * @return The boolean indicating whether the enemy must disappear or not
+   */
+  @Override
+  public boolean mustDisappear() {
+<span class="nc" id="L175">    return this.mustDisappear;</span>
+  }
+
+  /**
+   * Updates whether the enemy should go hidden using the given parameter
+   *
+   * @param mustDisappear enemy's new mustDisappear value Should be true if it should go hidden and
+   *     false otherwise
+   */
+  @Override
+  public void setMustDisappear(boolean mustDisappear) {
+<span class="nc" id="L186">    this.mustDisappear = mustDisappear;</span>
+<span class="nc" id="L187">  }</span>
+
+  /**
+   * Returns the type of the entity that the enemy has - Dynamic (followed by the camera) or Fixed
+   * (not followed)
+   *
+   * @return the enemy's entity type
+   */
+  @Override
+  public String getEntityType() {
+<span class="nc" id="L197">    return this.type;</span>
+  }
+
+  /**
+   * Returns true if the enemy is moving in the x direction or not
+   *
+   * @return is the enemy moving in the x direction or
+   */
+  @Override
+  public double IsMovingX() {
+<span class="nc" id="L207">    return this.isMovingX;</span>
+  }
+
+  /**
+   * Returns true if the enemy is moving in the y direction or not
+   *
+   * @return is the enemy moving in the y direction or
+   */
+  @Override
+  public double IsMovingY() {
+<span class="nc" id="L217">    return this.isMovingY;</span>
+  }
+
+  /**
+   * Returns the direction in which the enemy moves - 1 for positive and -1 for negative directions
+   *
+   * @return the movement direction of the enemy
+   */
+  @Override
+  public int getMovementDir() {
+<span class="nc" id="L227">    return this.direction;</span>
+  }
+
+  /**
+   * Updates the movement direction of the enemy using the given parameter
+   *
+   * @param newDir the new movement direction Should be 1 (for positive direction) or -1 (for
+   *     negative direction)
+   */
+  @Override
+  public void setMovementDir(int newDir) {
+<span class="nc" id="L238">    this.direction = newDir;</span>
+<span class="nc" id="L239">  }</span>
+
+  /** Moves the enemy by calling the relevant movement method for angry enemy */
+  @Override
+  public void move() {
+<span class="nc" id="L244">    movingStrategy.move(this);</span>
+<span class="nc" id="L245">  }</span>
+
+  /**
+   * Handles this enemy's collision with the character
+   *
+   * @param character the character that has collided with the enemy
+   */
+  @Override
+  public void handleCollision(Character character) {
+<span class="nc" id="L254">    collsionStrategy.handleCollision(this, character);</span>
+<span class="nc" id="L255">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

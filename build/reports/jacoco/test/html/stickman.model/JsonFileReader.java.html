@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonFileReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">JsonFileReader.java</span></div><h1>JsonFileReader.java</h1><pre class="source lang-java linenums">package stickman.model;
+/**
+ * Creates an object that reads the content of the json file and extract the necessary information
+ * to initialise the game engine
+ */
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.lang.Long;
+
+public class JsonFileReader {
+
+  // private String fileName;
+  private ErrorLogger eLog;
+
+<span class="fc" id="L21">  public JsonFileReader() {</span>
+    // this.fileName = fileName;
+<span class="fc" id="L23">    this.eLog = new ErrorLogger();</span>
+<span class="fc" id="L24">  }</span>
+
+  /**
+   * Read the content of the json file and parse them into JSONObject. Records an error to the
+   * ErrorLogger if an error occurs
+   *
+   * @param fileName the name of the json file as a String - eg &quot;example.json&quot;
+   * @return returns the content of the json file as JSONObject, or null if there is an error
+   */
+  public JSONObject read(String fileName) {
+<span class="fc" id="L34">    JSONParser parser = new JSONParser();</span>
+<span class="fc" id="L35">    try (FileReader reader = new FileReader(fileName)) {</span>
+<span class="fc" id="L36">      Object obj = parser.parse(reader);</span>
+<span class="fc" id="L37">      JSONObject jo = (JSONObject) obj;</span>
+<span class="fc" id="L38">      return jo;</span>
+<span class="fc" id="L39">    } catch (FileNotFoundException ex) {</span>
+<span class="fc" id="L40">      eLog.setMessage(&quot;Please check that the starting json file exists.&quot;);</span>
+<span class="nc" id="L41">      eLog.log();</span>
+<span class="nc" id="L42">      return null;</span>
+<span class="nc" id="L43">    } catch (IOException ex) {</span>
+<span class="nc" id="L44">      eLog.setMessage(ex.toString());</span>
+<span class="nc" id="L45">      eLog.log();</span>
+<span class="nc" id="L46">      return null;</span>
+<span class="fc" id="L47">    } catch (ParseException pe) {</span>
+<span class="fc" id="L48">      eLog.setMessage(pe.toString());</span>
+<span class="nc" id="L49">      eLog.log();</span>
+<span class="nc" id="L50">      return null;</span>
+    }
+  }
+
+  /**
+   * Returns the error logger created in the json file reader object for recording error.Designed
+   * only for using to test the error logger object
+   *
+   * @return The ErrorLogger in this JsonFileReader object
+   */
+  public ErrorLogger getELog() {
+<span class="nc" id="L61">    return this.eLog;</span>
+  }
+
+  /**
+   * Extracts and returns the name of the level specified in the json file as a String. Records an
+   * error message to the ErrorLogger if an error occurs
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The name of the level or null if an error occurs
+   */
+  public String findLevelName(JSONObject content) {
+    try {
+<span class="fc" id="L73">      String levelName = (String) content.get(&quot;levelName&quot;);</span>
+      // System.out.println(levelName == null);
+<span class="fc bfc" id="L75" title="All 2 branches covered.">      if (levelName == null) {</span>
+<span class="fc" id="L76">        eLog.setMessage(</span>
+            &quot;Please define the name of the level using the (format levelName: name) with name being a String &quot;);
+<span class="nc" id="L78">        eLog.log();</span>
+      }
+<span class="fc" id="L80">      return levelName;</span>
+<span class="fc" id="L81">    } catch (Exception ex) {</span>
+<span class="fc" id="L82">      eLog.setMessage(&quot;Please use a String as your file name&quot;);</span>
+<span class="nc" id="L83">      eLog.log();</span>
+<span class="nc" id="L84">      return null;</span>
+    }
+  }
+
+  /**
+   * Extracts and returns the size of the character specified in the json file as a String. Records
+   * an error message to the ErrorLogger if an error occurs or if the size specified in the file is
+   * not one of the followings: tiny, normal, large, giant
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The size of the character or null if an error occurs
+   */
+  public String findCharacterSize(JSONObject content) {
+    try {
+<span class="fc" id="L98">      String characterSize = (String) content.get(&quot;stickmanSize&quot;);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">      if (characterSize == null) {</span>
+<span class="fc" id="L100">        eLog.setMessage(</span>
+            &quot;Please define the size of the character using the format (stickmanSize: size)&quot;);
+<span class="nc" id="L102">        eLog.log();</span>
+      }
+<span class="fc bfc" id="L104" title="All 2 branches covered.">      if (characterSize.equalsIgnoreCase(&quot;tiny&quot;)</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">          || characterSize.equalsIgnoreCase(&quot;normal&quot;)</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">          || characterSize.equalsIgnoreCase(&quot;large&quot;)</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">          || characterSize.equalsIgnoreCase(&quot;giant&quot;)) {</span>
+<span class="fc" id="L108">        return characterSize;</span>
+      } else {
+<span class="fc" id="L110">        eLog.setMessage(</span>
+            &quot;Please define the size of the character from one of the options: tiny, normal, large, and giant.&quot;);
+<span class="nc" id="L112">        eLog.log();</span>
+      }
+<span class="fc" id="L114">    } catch (Exception ex) {</span>
+<span class="fc" id="L115">      eLog.setMessage(</span>
+          &quot;Please define the size of the character from one of the options: tiny, normal, large, and giant.&quot;);
+<span class="nc" id="L117">      eLog.log();</span>
+<span class="nc" id="L118">    }</span>
+<span class="nc" id="L119">    return null;</span>
+  }
+
+  /**
+   * Extracts and returns the x position of the character specified in the json file as a double.
+   * Records an error message to the ErrorLogger if an error occurs or if the position is negative
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The x position of the character or -1 if an error occurs
+   */
+  public double findCharacterXPos(JSONObject content) {
+    try {
+<span class="fc" id="L131">      HashMap&lt;String, Double&gt; stickmanX = (HashMap&lt;String, Double&gt;) content.get(&quot;stickmanPos&quot;);</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">      if (stickmanX.get(&quot;x&quot;) == null) {</span>
+<span class="nc" id="L133">        eLog.setMessage(</span>
+            &quot;Please define the starting x position of the caracter in the form (x: value) using a non-negative double&quot;);
+<span class="nc" id="L135">        eLog.log();</span>
+      }
+<span class="fc bfc" id="L137" title="All 2 branches covered.">      if (stickmanX.get(&quot;x&quot;) &lt; 0) {</span>
+<span class="fc" id="L138">        eLog.setMessage(</span>
+            &quot;Please define the starting x position of the caracter in the form (x: double) using a non-negative double&quot;);
+<span class="nc" id="L140">        eLog.log();</span>
+      }
+
+<span class="fc" id="L143">      return stickmanX.get(&quot;x&quot;);</span>
+<span class="fc" id="L144">    } catch (Exception ex) {</span>
+<span class="fc" id="L145">      eLog.setMessage(</span>
+          &quot;Please define the starting x position of the caracter in the form (x: double) using a non-negative double&quot;);
+<span class="nc" id="L147">      eLog.log();</span>
+    }
+<span class="nc" id="L149">    return -1;</span>
+  }
+
+  /**
+   * Extracts and returns the velocity of the cloud specified in the json file as a double. Records
+   * an error message to the ErrorLogger if an error occurs or if the velocity is less than 0
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The velocity of the cloud or -1 if an error occurs
+   */
+  public double findCloudVelocity(JSONObject content) {
+    try {
+<span class="fc" id="L161">      double cloudVelocity = (double) content.get(&quot;cloudVelocity&quot;);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">      if (content.get(&quot;cloudVelocity&quot;) == null) {</span>
+<span class="nc" id="L163">        eLog.setMessage(&quot;please provide cloud velocity in the form: (cloudVelocity: velocity)&quot;);</span>
+<span class="nc" id="L164">        eLog.log();</span>
+      }
+<span class="fc bfc" id="L166" title="All 2 branches covered.">      if (cloudVelocity &lt; 0) {</span>
+<span class="fc" id="L167">        eLog.setMessage(&quot;Please provide cloud velocity as a valid double starting from 0&quot;);</span>
+<span class="nc" id="L168">        eLog.log();</span>
+      }
+<span class="fc" id="L170">      return cloudVelocity;</span>
+<span class="fc" id="L171">    } catch (Exception ex) {</span>
+<span class="fc" id="L172">      eLog.setMessage(&quot;Please provide cloud velocity as a valid double starting from 0&quot;);</span>
+<span class="nc" id="L173">      eLog.log();</span>
+    }
+<span class="nc" id="L175">    return -1;</span>
+  }
+
+  /**
+   * Extracts and returns the information of all the enemies specified in the json file as a map.
+   * Records an error message to the ErrorLogger if the provided information is not in the correct
+   * format
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The map of enemies' information or null if an error occurs
+   */
+  public HashMap&lt;String, ArrayList&gt; findEnemies(JSONObject content) {
+    try {
+<span class="fc" id="L188">      HashMap&lt;String, ArrayList&gt; enemies = (HashMap&lt;String, ArrayList&gt;) content.get(&quot;enemies&quot;);</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">      if (enemies == null) {</span>
+<span class="fc" id="L190">        eLog.setMessage(</span>
+            &quot;Please provide a map of all the enemies in the json file using the format enemies: { }. Please refer to the README file for further explanation on the format of the json files&quot;);
+<span class="nc" id="L192">        eLog.log();</span>
+      }
+<span class="fc" id="L194">      return enemies;</span>
+<span class="fc" id="L195">    } catch (Exception ex) {</span>
+<span class="fc" id="L196">      eLog.setMessage(</span>
+          &quot;Please provide a map of all the enemies in the json file using the format enemies: { }. Please refer to the README file for further explanation on the format of the json files&quot;);
+<span class="nc" id="L198">      eLog.log();</span>
+    }
+<span class="nc" id="L200">    return null;</span>
+  }
+
+  /**
+   * Extracts and returns the number of lives the character has specified in the json file as a
+   * double. Records an error message to the ErrorLogger if an error occurs or if the number is not
+   * positive
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The number of lives a character has or -1 if an error occurs
+   */
+  public int findCharacterLifeCount(JSONObject content) {
+    try {
+<span class="fc" id="L213">      Long lifeCountLong = (Long) content.get(&quot;levelLifeCount&quot;);</span>
+<span class="fc" id="L214">      int lifeCount = lifeCountLong.intValue();</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">      if (lifeCount &lt;= 0) {</span>
+<span class="nc" id="L216">        eLog.setMessage(</span>
+            &quot;Please provide a positive int for the characterLifeCount element. This is the number of lives the character will have in a particular level&quot;);
+<span class="nc" id="L218">        eLog.log();</span>
+      } else {
+<span class="fc" id="L220">        return lifeCount;</span>
+      }
+<span class="fc" id="L222">    } catch (Exception ex) {</span>
+<span class="fc" id="L223">      System.out.println(ex);</span>
+<span class="fc" id="L224">      eLog.setMessage(</span>
+          &quot;Please provide a positive int for the characterLifeCount element. This is the number of lives the character will have in a particular level&quot;);
+<span class="nc" id="L226">      eLog.log();</span>
+<span class="nc" id="L227">    }</span>
+<span class="nc" id="L228">    return -1;</span>
+  }
+
+  /**
+   * Extracts and returns the information of all the platforms specified in the json file as a map.
+   * Records an error message to the ErrorLogger if an error occurs
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The map of platforms' information or null if an error occurs
+   */
+  public HashMap&lt;String, ArrayList&gt; findPlatforms(JSONObject content) {
+    try {
+<span class="fc" id="L240">      HashMap&lt;String, ArrayList&gt; platforms = (HashMap&lt;String, ArrayList&gt;) content.get(&quot;platforms&quot;);</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">      if (platforms == null) {</span>
+<span class="fc" id="L242">        eLog.setMessage(</span>
+            &quot;Please provide a map of all the platforms in the json file using the format platforms: { }. Please refer to the README file for further explanation on the format of the json files&quot;);
+<span class="nc" id="L244">        eLog.log();</span>
+      }
+      //System.out.println(platforms.get(&quot;NormalPlatform&quot;));
+<span class="fc" id="L247">      return platforms;</span>
+<span class="fc" id="L248">    } catch (Exception ex) {</span>
+<span class="fc" id="L249">      eLog.setMessage(</span>
+          &quot;Please provide a map of all the platforms in the json file using the format platforms: { }. Please refer to the README file for further explanation on the format of the json files&quot;);
+<span class="nc" id="L251">      eLog.log();</span>
+    }
+<span class="nc" id="L253">    return null;</span>
+  }
+
+  /**
+   * Extracts and returns the length of the level (x position of the finish line) specified in the
+   * json file as a double. Records an error message to the ErrorLogger if an error occurs or if the
+   * specified length is not positive
+   *
+   * @param content The content of the file in JSONObject format
+   * @return The length of the level or -1 if an error occurs
+   */
+  public double findLevelLength(JSONObject content) {
+    try {
+<span class="fc" id="L266">      double length = (double) content.get(&quot;levelLength&quot;);</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">      if (length &lt;= 0) {</span>
+<span class="fc" id="L268">        eLog.setMessage(&quot;Please provide a positive double as the level length.&quot;);</span>
+<span class="nc" id="L269">        eLog.log();</span>
+      }
+<span class="fc" id="L271">      return length;</span>
+<span class="fc" id="L272">    } catch (Exception ex) {</span>
+<span class="fc" id="L273">      eLog.setMessage(&quot;Please provide a positive double as the level length.&quot;);</span>
+<span class="nc" id="L274">      eLog.log();</span>
+    }
+<span class="nc" id="L276">    return -1;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameWindow.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.view</a> &gt; <span class="el_source">GameWindow.java</span></div><h1>GameWindow.java</h1><pre class="source lang-java linenums">package stickman.view;
+/** Creates a game window in which the game will run */
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.Pane;
+import javafx.util.Duration;
+import stickman.LevelProcessor;
+import stickman.model.Entity;
+import stickman.model.GameEngine;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GameWindow {
+  private final int width;
+  private Scene scene;
+  private Pane pane;
+  private GameEngine model;
+  private List&lt;EntityView&gt; entityViews;
+  private BackgroundDrawer backgroundDrawer;
+  private int levelCounter;
+<span class="nc" id="L26">  private double xViewportOffset = 0.0;</span>
+  private Map&lt;Entity, Double&gt; initialEntityPosition;
+  private static final double VIEWPORT_MARGIN = 280.0;
+  private LevelProcessor levelProcessor;
+  private boolean levelFinished;
+
+<span class="nc" id="L32">  public GameWindow(GameEngine model, int width, int height, LevelProcessor levelProcessor) {</span>
+<span class="nc" id="L33">    this.model = model;</span>
+<span class="nc" id="L34">    this.pane = new Pane();</span>
+<span class="nc" id="L35">    this.width = width;</span>
+<span class="nc" id="L36">    this.scene = new Scene(pane, width, height);</span>
+<span class="nc" id="L37">    this.levelFinished = false;</span>
+<span class="nc" id="L38">    this.levelCounter = 1;</span>
+<span class="nc" id="L39">    this.entityViews = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">    this.initialEntityPosition = new HashMap&lt;Entity, Double&gt;();</span>
+<span class="nc" id="L41">    this.levelProcessor = levelProcessor;</span>
+<span class="nc" id="L42">    KeyboardInputHandler keyboardInputHandler = new KeyboardInputHandler(model);</span>
+
+<span class="nc" id="L44">    scene.setOnKeyPressed(keyboardInputHandler::handlePressed);</span>
+<span class="nc" id="L45">    scene.setOnKeyReleased(keyboardInputHandler::handleReleased);</span>
+
+<span class="nc" id="L47">    this.backgroundDrawer = new ParallaxBackground();</span>
+
+<span class="nc" id="L49">    backgroundDrawer.draw(model, pane);</span>
+<span class="nc" id="L50">  }</span>
+
+  /**
+   * Returns the JavaFX scene created by the game window
+   *
+   * @return The scene of the game window
+   */
+  public Scene getScene() {
+<span class="nc" id="L58">    return this.scene;</span>
+  }
+
+  /** Runs the game by updating the scene every 17 milliseconds */
+  public void run() {
+<span class="nc" id="L63">    Timeline timeline = new Timeline(new KeyFrame(Duration.millis(17), t -&gt; this.draw()));</span>
+
+<span class="nc" id="L65">    timeline.setCycleCount(Timeline.INDEFINITE);</span>
+<span class="nc" id="L66">    timeline.play();</span>
+<span class="nc" id="L67">  }</span>
+
+  /**
+   * marks the game window as finished, which means there is no need for it to continue updating the
+   * scene
+   *
+   * @param isFinished A boolean indicating whether the game window must be finished or not
+   */
+  public void setLevelFinished(boolean isFinished) {
+<span class="nc" id="L76">    this.levelFinished = isFinished;</span>
+<span class="nc" id="L77">  }</span>
+
+  /**
+   * Checks whether the game window is marked as finished or not - returns true if it has been
+   * marked and false otherwise
+   *
+   * @return Returns true if the game is finished and false otherwise
+   */
+  public boolean HasLevelFinished() {
+<span class="nc" id="L86">    return this.levelFinished;</span>
+  }
+
+  /**
+   * Createsa message box informing the user that the new level has started. Called when a new level
+   * is being loaded
+   */
+  public void createFinishMessage(double timeElapsed) {
+<span class="nc" id="L94">    Alert a =</span>
+        new Alert(
+            Alert.AlertType.INFORMATION,
+            &quot;Level &quot;
+<span class="nc" id="L98">                + (levelProcessor.getLevelCounter() - 1)</span>
+                + &quot; Completed. Level &quot;
+<span class="nc" id="L100">                + levelProcessor.getLevelCounter()</span>
+                + &quot; has started. Time elapsed: &quot;
+<span class="nc" id="L102">                + Math.round(timeElapsed * 100.00) / 100.00);</span>
+<span class="nc" id="L103">    a.show();</span>
+<span class="nc" id="L104">  }</span>
+
+  /**
+   * Creates a message box informing the user that have lost the game and has to start from the
+   * first level
+   */
+  public void createLostMessage() {
+<span class="nc" id="L111">    Alert a = new Alert(Alert.AlertType.INFORMATION, &quot;You have lost. Try again from level 1&quot;);</span>
+<span class="nc" id="L112">    a.show();</span>
+<span class="nc" id="L113">  }</span>
+  /**
+   * Called from game engine to load a new level. Once a level is finished and calls
+   * createFinishMessage to create a message informing the user that the new level has started
+   */
+  public void loadNewLevel(double timeElapsed) {
+<span class="nc" id="L119">    levelProcessor.loadLevel();</span>
+<span class="nc" id="L120">    createFinishMessage(timeElapsed);</span>
+<span class="nc" id="L121">  }</span>
+
+  /**
+   * Called from game engine when the character has lost to reconfigure the game from the first
+   * level. It also calls createLostMessage to inform the user that the game is starting from level
+   * 1.
+   */
+  public void reconfigureGame() {
+<span class="nc" id="L129">    levelProcessor.reconfigureGame();</span>
+<span class="nc" id="L130">    createLostMessage();</span>
+<span class="nc" id="L131">  }</span>
+  /**
+   * Called by the run method evey 17 milliseconds. If the game has not finished, it draws the
+   * entities and updates the scene, if it has however, it will do nothing.
+   */
+  private void draw() {
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">    if (this.HasLevelFinished()) {</span>
+
+    } else {
+<span class="nc" id="L141">      model.tick(this);</span>
+<span class="nc" id="L142">      List&lt;Entity&gt; entities = model.getCurrentLevel().getEntities();</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">      for (EntityView entityView : entityViews) {</span>
+<span class="nc" id="L145">        entityView.markForDelete();</span>
+<span class="nc" id="L146">      }</span>
+
+<span class="nc" id="L148">      double heroXPos = model.getCurrentLevel().getHeroX();</span>
+<span class="nc" id="L149">      heroXPos -= xViewportOffset;</span>
+
+<span class="nc bnc" id="L151" title="All 2 branches missed.">      if (heroXPos &lt; VIEWPORT_MARGIN) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (xViewportOffset &gt;= 0) {</span>
+<span class="nc" id="L153">          xViewportOffset -= VIEWPORT_MARGIN - heroXPos;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">          if (xViewportOffset &lt; 0) {</span>
+<span class="nc" id="L155">            xViewportOffset = 0;</span>
+          }
+        }
+<span class="nc bnc" id="L158" title="All 2 branches missed.">      } else if (heroXPos &gt; width - VIEWPORT_MARGIN) {</span>
+<span class="nc" id="L159">        xViewportOffset += heroXPos - (width - VIEWPORT_MARGIN);</span>
+      }
+<span class="nc" id="L161">      backgroundDrawer.update(xViewportOffset);</span>
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">      for (Entity entity : entities) {</span>
+<span class="nc" id="L164">        boolean notFound = true;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (EntityView view : entityViews) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">          if (view.matchesEntity(entity)) {</span>
+<span class="nc" id="L167">            notFound = false;</span>
+            // System.out.println (entity.getClass() + &quot; &quot; + view.getClass());
+
+<span class="nc" id="L170">            view.update(xViewportOffset);</span>
+
+<span class="nc" id="L172">            break;</span>
+          }
+<span class="nc" id="L174">        }</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (notFound) {</span>
+          EntityView entityView;
+<span class="nc" id="L177">          entityView = EntityViewFactory.make(entity, entity.getEntityType());</span>
+
+<span class="nc" id="L179">          entityViews.add(entityView);</span>
+<span class="nc" id="L180">          pane.getChildren().add(entityView.getNode());</span>
+        }
+<span class="nc" id="L182">      }</span>
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">      for (EntityView entityView : entityViews) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (entityView.isMarkedForDelete()) {</span>
+<span class="nc" id="L186">          pane.getChildren().remove(entityView.getNode());</span>
+        }
+<span class="nc" id="L188">      }</span>
+<span class="nc" id="L189">      entityViews.removeIf(EntityView::isMarkedForDelete);</span>
+    }
+<span class="nc" id="L191">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

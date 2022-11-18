@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameEngineImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">GameEngineImpl.java</span></div><h1>GameEngineImpl.java</h1><pre class="source lang-java linenums">package stickman.model;
+/**
+ * Creates a game engine that is called from App and view It handles character movements, creation
+ * of a level, and the update of the screen
+ */
+import stickman.view.GameWindow;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class GameEngineImpl implements GameEngine {
+
+  private LevelImpl level;
+
+  public GameEngineImpl(
+      String levelName,
+      String characterSize,
+      double characterXPos,
+      double cloudVelocity,
+      HashMap&lt;String, ArrayList&gt; enemies,
+      int characterLifeCount,
+      HashMap&lt;String, ArrayList&gt; platforms,
+<span class="nc" id="L22">      double levelLength) {</span>
+
+<span class="nc" id="L24">    level =</span>
+        new LevelImpl(
+            levelName,
+            characterSize,
+            characterXPos,
+            cloudVelocity,
+            enemies,
+            characterLifeCount,
+            platforms,
+            levelLength);
+<span class="nc" id="L34">  }</span>
+
+  /**
+   * Gives the view the level that is currently loaded
+   *
+   * @return the currently loaded level
+   */
+  @Override
+  public Level getCurrentLevel() {
+<span class="nc" id="L43">    return this.level;</span>
+  }
+
+  /** Starts the level running */
+  @Override
+<span class="nc" id="L48">  public void startLevel() {}</span>
+
+  /**
+   * Called when the character has to jump. Calls the jump method of the level
+   *
+   * @return The result of jumping - true if jump successfully worked for level and false otherwise
+   */
+  @Override
+  public boolean jump() {
+<span class="nc" id="L57">    return level.jump();</span>
+  }
+
+  /**
+   * Called when the character has to move left. Calls the moveLeft method of the level
+   *
+   * @return The result of going left - true if moveLeft successfully worked for level and false
+   *     otherwise
+   */
+  @Override
+  public boolean moveLeft() {
+<span class="nc" id="L68">    return level.moveLeft();</span>
+  }
+
+  /**
+   * Called when the character has to go right. Calls the moveRight method of the level
+   *
+   * @return The result of going right - true if moveRight successfully worked for level and false
+   *     otherwise
+   */
+  @Override
+  public boolean moveRight() {
+<span class="nc" id="L79">    return level.moveRight();</span>
+  }
+
+  /**
+   * Called when the character has to stop moving. Calls the stopMoving method of the level
+   *
+   * @return The result of stopping movement - true if stopMove successfully worked for level and
+   *     false otherwise
+   */
+  @Override
+  public boolean stopMoving() {
+<span class="nc" id="L90">    return level.stopMoving();</span>
+  }
+
+  /**
+   * Updates the screen by calling the level's tick method if the level is not finished, otherwise
+   * marks the game window as being finished
+   *
+   * @param gameWindow The game window that is currently loaded
+   */
+  @Override
+  public void tick(GameWindow gameWindow) {
+
+<span class="nc bnc" id="L102" title="All 4 branches missed.">    if (level.isFinished() == false &amp;&amp; level.isLevelLost() == false) {</span>
+<span class="nc" id="L103">      level.tick();</span>
+    }
+    else {
+<span class="nc" id="L106">      gameWindow.setLevelFinished(true);</span>
+<span class="nc" id="L107">      double timeElapsed = level.getTimeElapsed();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">      if (level.isFinished()){</span>
+<span class="nc" id="L109">        gameWindow.loadNewLevel(timeElapsed);</span>
+      }
+<span class="nc bnc" id="L111" title="All 2 branches missed.">      else if (level.isLevelLost()){</span>
+<span class="nc" id="L112">        gameWindow.reconfigureGame();</span>
+      }
+    }
+<span class="nc" id="L115">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

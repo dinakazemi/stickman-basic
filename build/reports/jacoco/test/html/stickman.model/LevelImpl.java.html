@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LevelImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">untitled</a> &gt; <a href="index.source.html" class="el_package">stickman.model</a> &gt; <span class="el_source">LevelImpl.java</span></div><h1>LevelImpl.java</h1><pre class="source lang-java linenums">package stickman.model;
+/**
+ * Creates a level and handles the methods related to a level . A game window can have only one
+ * level loaded at a time. The level is observed as a subject by the CharacterImpl
+ */
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+
+public class LevelImpl extends Level {
+  private double width;
+  private double height;
+  private Character character;
+  private ArrayList&lt;Cloud&gt; clouds;
+  private double floorHeight;
+  private ArrayList&lt;Platform&gt; platforms;
+  private double counter;
+  private int jump_timer;
+  private List&lt;Double&gt; cloudInitialXPos;
+  private String levelName;
+  private ArrayList&lt;Enemy&gt; enemies;
+  private ArrayList&lt;Entity&gt; surroundingEntites;
+  private double length;
+  private boolean isFinished;
+  private ArrayList&lt;Observer&gt; observers;
+  private String message;
+  private boolean chnaged;
+  private ArrayList&lt;Enemy&gt; initialEnemies;
+  private boolean levelLost;
+  private double timeElapsed;
+  private HashMap&lt;String, ArrayList&gt; enemiesInfo;
+
+  LevelImpl(
+      String levelName,
+      String characterSize,
+      double characterXPos,
+      double cloudVelocity,
+      HashMap&lt;String, ArrayList&gt; enemiesInfo,
+      int characterLifeCount,
+      HashMap&lt;String, ArrayList&gt; platforms,
+<span class="nc" id="L41">      double length) {</span>
+<span class="nc" id="L42">    this.timeElapsed = 0;</span>
+<span class="nc" id="L43">    this.height = 400;</span>
+<span class="nc" id="L44">    this.width = 640;</span>
+<span class="nc" id="L45">    this.floorHeight = 300;</span>
+<span class="nc" id="L46">    this.clouds = new ArrayList&lt;Cloud&gt;();</span>
+<span class="nc" id="L47">    this.jump_timer = 0;</span>
+<span class="nc" id="L48">    this.cloudInitialXPos = new ArrayList&lt;Double&gt;();</span>
+<span class="nc" id="L49">    this.surroundingEntites = new ArrayList&lt;Entity&gt;();</span>
+<span class="nc" id="L50">    this.platforms = new ArrayList&lt;Platform&gt;();</span>
+<span class="nc" id="L51">    this.length = length;</span>
+<span class="nc" id="L52">    this.isFinished = false;</span>
+<span class="nc" id="L53">    this.observers = new ArrayList&lt;Observer&gt;();</span>
+<span class="nc" id="L54">    this.message = &quot;Continue&quot;;</span>
+<span class="nc" id="L55">    this.chnaged = false;</span>
+<span class="nc" id="L56">    this.levelLost = false;</span>
+<span class="nc" id="L57">    this.enemiesInfo = enemiesInfo;</span>
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">    for (int i = 0; i &lt; 15; i++) {</span>
+<span class="nc" id="L60">      this.clouds.add(new Cloud(cloudVelocity, this.floorHeight, length));</span>
+<span class="nc" id="L61">      this.cloudInitialXPos.add(clouds.get(i).getXPos());</span>
+    }
+<span class="nc" id="L63">    this.counter = 0;</span>
+<span class="nc" id="L64">    this.levelName = levelName;</span>
+<span class="nc" id="L65">    this.enemies = EnemyFactory.make(enemiesInfo, this.getFloorHeight());</span>
+<span class="nc" id="L66">    this.platforms = PlatformFactory.make(platforms, this.getFloorHeight());</span>
+<span class="nc" id="L67">    this.character =</span>
+        new CharacterImpl(characterSize, characterXPos, this.floorHeight, characterLifeCount, this);
+<span class="nc" id="L69">    this.observers.add(character);</span>
+    // this.initialEnemies = EnemyFactory.make(enemiesInfo, this.getFloorHeight());
+<span class="nc" id="L71">  }</span>
+
+  /**
+   * Returns all the entities present in the level right now to the veiw to draw
+   *
+   * @return The list of all entities in this level
+   */
+  public List&lt;Entity&gt; getEntities() {
+
+<span class="nc" id="L80">    List&lt;Entity&gt; levelEntities = new ArrayList&lt;Entity&gt;();</span>
+<span class="nc" id="L81">    levelEntities.add(character);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    for (Cloud cloud : clouds) {</span>
+<span class="nc" id="L83">      levelEntities.add(cloud);</span>
+<span class="nc" id="L84">    }</span>
+    // adding hearts to the left top side of the game showing how many lives the characterImpl has left.
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    for (Enemy e : enemies) {</span>
+<span class="nc" id="L87">      levelEntities.add(e);</span>
+<span class="nc" id="L88">    }</span>
+<span class="nc" id="L89">    levelEntities.addAll(platforms);</span>
+<span class="nc" id="L90">    levelEntities.addAll(character.getLife());</span>
+<span class="nc" id="L91">    return levelEntities;</span>
+  }
+
+  /**
+   * Adds an observer to watch level as its subject and get updates on level
+   *
+   * @param observer The new observer to watch level
+   */
+  @Override
+  public void register(Observer observer) {
+<span class="nc" id="L101">    this.observers.add(observer);</span>
+<span class="nc" id="L102">  }</span>
+
+  /**
+   * Removes an observer from watching the level and getting updates on it
+   *
+   * @param observer The observer to be removed
+   */
+  @Override
+  public void unregister(Observer observer) {
+<span class="nc" id="L111">    this.observers.remove(observer);</span>
+<span class="nc" id="L112">  }</span>
+
+  @Override
+  public void notifyObservres() {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">    for (Observer o : observers) {</span>
+<span class="nc" id="L117">      o.update();</span>
+<span class="nc" id="L118">    }</span>
+<span class="nc" id="L119">  }</span>
+
+  /**
+   * Updates the level as a subject with a new message and notifies observers of the update. Used
+   * when a certain event occurs in level and changes become necessary - eg when characterImpl loses
+   *
+   * @param newMessage The updated message
+   */
+  public void postMessage(String newMessage) {
+<span class="nc" id="L128">    this.message = newMessage;</span>
+<span class="nc" id="L129">    this.chnaged = true;</span>
+<span class="nc" id="L130">    notifyObservres();</span>
+<span class="nc" id="L131">  }</span>
+
+  public double getTimeElapsed() {
+<span class="nc" id="L134">    return this.timeElapsed;</span>
+  }
+
+  /**
+   * Returns the message that the level contains to help determine whether it has been updated or
+   * not
+   *
+   * @param observer The observer that will get the message
+   * @return The message that level contains
+   */
+  @Override
+  public String getUpdate(Observer observer) {
+<span class="nc" id="L146">    return this.message;</span>
+  }
+
+  /**
+   * The height of the level (not necessarily the height of the view)
+   *
+   * @return The height that level has
+   */
+  @Override
+  public double getHeight() {
+<span class="nc" id="L156">    return this.height;</span>
+  }
+
+  /**
+   * The width of the level (almost definitely not the width of the view)
+   *
+   * @return The width that level has
+   */
+  @Override
+  public double getWidth() {
+
+<span class="nc" id="L167">    return this.width;</span>
+  }
+
+  /**
+   * This is the way the view tells the model to update - it is the trigger that is sent to the
+   * model each frame. Movement of all the moving entities, handling the collision of entities with
+   * the character and changing the state of the character accordingly are handled inside this
+   * method. This method also keeps track of the time elapsed and if the character wins the game, it
+   * will print it out on the screen
+   */
+  @Override
+  public void tick() {
+    // every time tick is called we delete old elements add new elements to surroundingElements to
+    // make sure it is up to date.
+<span class="nc" id="L181">    surroundingEntites.clear();</span>
+<span class="nc" id="L182">    character.setLostALife(false);</span>
+<span class="nc" id="L183">    character.setHitAnEnemy(false);</span>
+    // collidedEntities.clear();
+<span class="nc" id="L185">    timeElapsed += 0.017;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">    if (character.getIsMovingRight()) {</span>
+<span class="nc" id="L187">      character.setXPos(character.getXPos() + 1);</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">      for (int i = 0; i &lt; character.getLife().size(); i++) {</span>
+<span class="nc" id="L189">        character.getLife().get(i).setXPos(character.getLife().get(i).getXPos() + 1);</span>
+      }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">      if (counter == 0) {</span>
+<span class="nc" id="L192">        character.setImagePath(&quot;ch_stand1.png&quot;);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">      } else if (counter == 1) {</span>
+<span class="nc" id="L194">        character.setImagePath(&quot;ch_walk1.png&quot;);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">      } else if (counter == 2) {</span>
+<span class="nc" id="L196">        character.setImagePath(&quot;ch_walk2.png&quot;);</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">      } else if (counter == 3) {</span>
+<span class="nc" id="L198">        character.setImagePath(&quot;ch_walk3.png&quot;);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">      } else if (counter == 4) {</span>
+<span class="nc" id="L200">        character.setImagePath(&quot;ch_walk4.png&quot;);</span>
+      }
+    }
+<span class="nc bnc" id="L203" title="All 2 branches missed.">    if (character.getIsMovingLeft()) {</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">      if (character.getXPos() &gt;= 1) {</span>
+<span class="nc" id="L205">        character.setXPos(character.getXPos() - 1);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        for (int i = 0; i &lt; character.getLife().size(); i++) {</span>
+<span class="nc" id="L207">          character.getLife().get(i).setXPos(character.getLife().get(i).getXPos() - 1);</span>
+        }
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        if (counter == 0) {</span>
+<span class="nc" id="L210">          character.setImagePath(&quot;ch_stand4.png&quot;);</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        } else if (counter == 1) {</span>
+<span class="nc" id="L212">          character.setImagePath(&quot;ch_walk5.png&quot;);</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        } else if (counter == 2) {</span>
+<span class="nc" id="L214">          character.setImagePath(&quot;ch_walk6.png&quot;);</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        } else if (counter == 3) {</span>
+<span class="nc" id="L216">          character.setImagePath(&quot;ch_walk7.png&quot;);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        } else if (counter == 4) {</span>
+<span class="nc" id="L218">          character.setImagePath(&quot;ch_walk8.png&quot;);</span>
+        }
+      } else {
+<span class="nc" id="L221">        character.setXPos(0);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (counter == 0.0) {</span>
+<span class="nc" id="L223">          character.setImagePath(&quot;ch_stand4.png&quot;);</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        } else if (counter == 1.0) {</span>
+<span class="nc" id="L225">          character.setImagePath(&quot;ch_walk5.png&quot;);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        } else if (counter == 2.0) {</span>
+<span class="nc" id="L227">          character.setImagePath(&quot;ch_walk6.png&quot;);</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        } else if (counter == 3.0) {</span>
+<span class="nc" id="L229">          character.setImagePath(&quot;ch_walk7.png&quot;);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        } else if (counter == 4.0) {</span>
+<span class="nc" id="L231">          character.setImagePath(&quot;ch_walk8.png&quot;);</span>
+        }
+      }
+    }
+
+<span class="nc bnc" id="L236" title="All 2 branches missed.">    if (character.getIsJumping()) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">      if (jump_timer &lt;= 30) {</span>
+<span class="nc" id="L238">        character.setYPos(character.getYPos() - 3);</span>
+<span class="nc" id="L239">        jump_timer += 1;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">      } else if (jump_timer &lt;= 61) {</span>
+<span class="nc" id="L241">        character.setYPos(character.getYPos() + 3);</span>
+<span class="nc" id="L242">        jump_timer += 1;</span>
+      } else {
+<span class="nc" id="L244">        jump_timer = 0;</span>
+<span class="nc" id="L245">        character.setIsJumping(false);</span>
+      }
+    }
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">    if (character.getIsMovingDown()) {</span>
+      // System.out.println(characterImpl.getXPos() + &quot; &quot; + characterImpl.getYPos());
+<span class="nc bnc" id="L251" title="All 2 branches missed.">      if (character.getYPos() &gt;= this.getFloorHeight() - character.getHeight()) {</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (character.getIsJumping()){</span>
+
+        }
+        else{
+<span class="nc" id="L256">          character.stopMovingDown();</span>
+        }
+
+        // counter = 0;
+        // characterImpl.setImagePath(&quot;ch_stand1.png&quot;);
+        // characterImpl.setYPos(this.getFloorHeight() - characterImpl.getHeight());
+<span class="nc" id="L262">        character.setIsOnPlatform(null);</span>
+      } else {
+<span class="nc" id="L264">        character.setYPos(character.getYPos() + 3);</span>
+      }
+    }
+
+<span class="nc bnc" id="L268" title="All 2 branches missed.">    if (counter == 5.0) {</span>
+<span class="nc" id="L269">      counter = 0;</span>
+    }
+<span class="nc" id="L271">    counter += 0.125;</span>
+
+<span class="nc bnc" id="L273" title="All 2 branches missed.">    for (Enemy e : enemies) {</span>
+<span class="nc" id="L274">      e.move();</span>
+<span class="nc" id="L275">    }</span>
+
+    //      implementing cloud movement in the level
+<span class="nc bnc" id="L278" title="All 2 branches missed.">    for (int i = 0; i &lt; clouds.size(); i++) {</span>
+<span class="nc" id="L279">      Cloud c = clouds.get(i);</span>
+<span class="nc" id="L280">      c.setCloudDirection(1);</span>
+<span class="nc" id="L281">      c.move();</span>
+    }
+
+<span class="nc" id="L284">    surroundingEntites.addAll(enemies);</span>
+<span class="nc" id="L285">    surroundingEntites.addAll(platforms);</span>
+
+<span class="nc bnc" id="L287" title="All 2 branches missed.">    for (Entity e : surroundingEntites) {</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">      if (hasCollided(e, character)) {</span>
+        // System.out.println(e + &quot; has collided&quot;);
+        // System.out.println(e + &quot; &quot; + characterImpl.getXPos() + &quot; &quot; + characterImpl.getYPos());
+<span class="nc" id="L291">        e.handleCollision(character);</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (character.hasLostALife()) {</span>
+<span class="nc" id="L293">          this.postMessage(&quot;Reconfigure&quot;);</span>
+<span class="nc" id="L294">          this.initialEnemies = EnemyFactory.make(enemiesInfo, this.getFloorHeight());</span>
+<span class="nc" id="L295">          enemies = initialEnemies;</span>
+<span class="nc" id="L296">          break;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        } else if (character.getHitAnEnemy()) {</span>
+<span class="nc" id="L298">          this.postMessage(&quot;Continue&quot;);</span>
+<span class="nc" id="L299">          enemies.remove(e);</span>
+<span class="nc" id="L300">          break;</span>
+        }
+      }
+      //      if (characterImpl.getIsOnPlatform() &amp;&amp; hasCollided(e, characterImpl) == false){
+      //        characterImpl.moveDown();
+      //      }
+<span class="nc bnc" id="L306" title="All 4 branches missed.">      if ((character.getIsOnPlatform() == e &amp;&amp; character.getXPos() &gt; e.getXPos() + e.getWidth())</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">          || (character.getIsOnPlatform() == e &amp;&amp; character.getXPos() &lt; e.getXPos())) {</span>
+        // System.out.println(characterImpl.isJumping + &quot; &quot; + characterImpl.getXPos() + &quot; &quot; + e);
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        if (character.getIsJumping()){</span>
+
+        }
+        else{
+<span class="nc" id="L313">          character.moveDown();</span>
+        }
+
+        //        if (characterImpl.getYPos() &gt;= this.getFloorHeight() - characterImpl.getHeight()){
+        //          characterImpl.setYPos(this.getFloorHeight() - characterImpl.getHeight());
+        //          characterImpl.stopMovingDown();
+        //        }
+      }
+<span class="nc" id="L321">    }</span>
+
+<span class="nc bnc" id="L323" title="All 2 branches missed.">    if (character.getXPos() == length) {</span>
+<span class="nc" id="L324">      this.postMessage(&quot;Won&quot;);</span>
+<span class="nc" id="L325">      System.out.println(&quot;Time elapsed: &quot; + Math.round(timeElapsed * 100.0) / 100.0);</span>
+<span class="nc" id="L326">      this.isFinished = true;</span>
+    }
+<span class="nc bnc" id="L328" title="All 2 branches missed.">    if (character.getLife().size() == 0) {</span>
+<span class="nc" id="L329">      this.postMessage(&quot;Lost&quot;);</span>
+<span class="nc" id="L330">      this.levelLost = true;</span>
+    }
+<span class="nc" id="L332">    character.getState().updateScreen(character);</span>
+
+<span class="nc bnc" id="L334" title="All 2 branches missed.">    if (character.getXPos() == character.getInitialX()) {</span>
+<span class="nc" id="L335">      this.postMessage(&quot;Continue&quot;);</span>
+    }
+<span class="nc" id="L337">  }</span>
+
+  /**
+   * Tells the game engine whether the character has lost the level or not. A level is lost if the
+   * character has lost all his lives
+   *
+   * @return A boolean indicating whether the game is lost
+   */
+  public boolean isLevelLost() {
+<span class="nc" id="L346">    return this.levelLost;</span>
+  }
+  /**
+   * Tells the game engine whether the level has been finished or not A level is finished if the
+   * character wins the game - returns true if it has been finished and false otherwise
+   *
+   * @return A boolean indicating whether the game has been finished
+   */
+  public boolean isFinished() {
+<span class="nc" id="L355">    return this.isFinished;</span>
+  }
+
+  /**
+   * Checks whether an entity has collided with the character or not - returns true if it has and
+   * false otherwise
+   *
+   * @param e The entity that its collision with the character is determined
+   * @param character The character in the game
+   * @return The boolean indicating whether a collision has happened or not
+   */
+  private boolean hasCollided(Entity e, Character character) {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">    return character.getXPos() &lt; e.getXPos() + e.getWidth()</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">        &amp;&amp; character.getXPos() + character.getWidth() &gt; e.getXPos()</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        &amp;&amp; character.getYPos() &lt; e.getYPos() + e.getHeight()</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">        &amp;&amp; character.getYPos() + character.getHeight() &gt; e.getYPos();</span>
+  }
+
+  /**
+   * Tells the view where the ground stops and the sky starts
+   *
+   * @return the height of the floor in the level as a double
+   */
+  @Override
+  public double getFloorHeight() {
+
+<span class="nc" id="L381">    return floorHeight;</span>
+  }
+
+  /**
+   * Tells the view the horizontal position of the hero so the camera can follow.
+   *
+   * @return The x position of the hero
+   */
+  @Override
+  public double getHeroX() {
+
+<span class="nc" id="L392">    return character.getXPos();</span>
+  }
+
+  /**
+   * Tells the hero to jump by calling character's jump method
+   *
+   * @return Whether the jump has been successful or not - true if it has and false otherwise
+   */
+  @Override
+  public boolean jump() {
+
+<span class="nc" id="L403">    boolean result = character.jump();</span>
+<span class="nc" id="L404">    return result;</span>
+  }
+
+  /**
+   * Tells the hero to start moving left by calling character's moveLeft method
+   *
+   * @return Whether movement to the left has been successful or not - true if it has and false
+   *     otherwise
+   */
+  @Override
+  public boolean moveLeft() {
+
+<span class="nc" id="L416">    boolean result = character.moveLeft();</span>
+<span class="nc" id="L417">    return result;</span>
+  }
+
+  /**
+   * Tells the hero to start moving right by calling character's moveRight method
+   *
+   * @return Whether movement to the right has been successful or not - true if it has and false
+   *     otherwise
+   */
+  @Override
+  public boolean moveRight() {
+
+<span class="nc" id="L429">    boolean result = character.moveRight();</span>
+<span class="nc" id="L430">    return result;</span>
+  }
+
+  /**
+   * Tells the hero to stop moving left or right by calling relevant methods in characterImpl.
+   *
+   * @return Whether stopping the movement has been successful or not - true if it has and false
+   *     otherwise
+   */
+  @Override
+  public boolean stopMoving() {
+<span class="nc" id="L441">    counter = 0;</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">    if (character.getIsMovingLeft()) {</span>
+<span class="nc" id="L443">      character.setImagePath(&quot;ch_stand4.png&quot;);</span>
+    }
+<span class="nc bnc" id="L445" title="All 2 branches missed.">    if (character.getIsMovingRight()) {</span>
+<span class="nc" id="L446">      character.setImagePath(&quot;ch_stand1.png&quot;);</span>
+    }
+<span class="nc bnc" id="L448" title="All 2 branches missed.">    if (jump_timer &gt; 0) {</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">      if (character.getIsMovingRight()) {</span>
+        // counter = 0;
+<span class="nc" id="L451">        character.stopMovingRight();</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">      } else if (character.getIsMovingLeft()) {</span>
+        // counter = 0;
+<span class="nc" id="L454">        character.stopMovingLeft();</span>
+      }
+<span class="nc bnc" id="L456" title="All 2 branches missed.">    } else if (jump_timer == 0) {</span>
+<span class="nc" id="L457">      character.stopMoving();</span>
+    }
+<span class="nc" id="L459">    return true;</span>
+  }
+
+  /**
+   * Returns the length of the level (the x position at which the level is completed)
+   *
+   * @return the length (finish line x position) of the level
+   */
+  public double getLength() {
+<span class="nc" id="L468">    return this.length;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
